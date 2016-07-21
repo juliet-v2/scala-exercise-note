@@ -18,5 +18,33 @@ class SemigroupSpec extends WordSpec with Matchers{
       Semigroup[Option[Int]].combine(Option(1), None) shouldBe Option(1)
       Semigroup[Int ⇒ Int].combine({ (x: Int) ⇒ x + 1 }, { (x: Int) ⇒ x * 10 }).apply(6) shouldBe(67)
     }
+
+    "merge test" in {
+
+      Map("foo" -> Map("bar" -> 5)).combine(Map("foo" -> Map("bar" -> 6), "baz" -> Map()))
+      Map("foo" -> List(1, 2)).combine(Map("foo" -> List(3, 4), "bar" -> List(42)))
+
+      val aMap = Map("foo" -> Map("bar" -> 5))
+      val anotherMap = Map("foo" -> Map("bar" -> 6))
+      val combineMap = Semigroup[Map[String, Map[String, Int]]].combine(aMap, anotherMap)
+
+      combineMap.get("foo") shouldBe Some(Map("bar" -> 11))
+    }
+
+    "|+| test" in {
+      val one: Option[Int] = Option(1)
+      val two: Option[Int] = Option(2)
+      val n: Option[Int] = None
+
+      one |+| two shouldBe Option(3)
+
+      n |+| two shouldBe Option(2)
+
+      n |+| n shouldBe None
+
+      two |+| n shouldBe Option(2)
+    }
   }
+
+
 }
